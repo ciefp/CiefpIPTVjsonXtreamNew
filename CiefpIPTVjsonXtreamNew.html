@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPTV JSON Generator - Ciefp</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: #011a2e;
+            padding: 2rem 1rem;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            background: #0a2844;
+            border-radius: 28px;
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.6);
+            padding: 2rem 2rem 2.5rem;
+            border: 1px solid #1a3a5a;
+        }
+        h1 {
+            font-size: 1.9rem;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 0.25rem;
+            color: #f0f7ff;
+        }
+        .subhead {
+            color: #8ba9d4;
+            border-left: 3px solid #3b82f6;
+            padding-left: 14px;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+        .playlists-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem 2rem;
+            margin-bottom: 1rem;
+        }
+        .field-group {
+            background: #0d2a44;
+            border-radius: 16px;
+            padding: 1.25rem 1.5rem 1.5rem;
+            border: 1px solid #1a4060;
+            transition: 0.2s;
+            position: relative;
+        }
+        .field-group:hover {
+            border-color: #2a5a8a;
+        }
+        .field-group h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: #b0ccf0;
+            margin-bottom: 1.25rem;
+            border-bottom: 1px dashed #1a4060;
+            padding-bottom: 0.6rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .field-group h3 .badge {
+            background: #1a4060;
+            color: #b0ccf0;
+            border-radius: 40px;
+            padding: 0.1rem 0.9rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+        }
+        .field-group h3 .remove-btn {
+            background: #4a1a1a;
+            border: 1px solid #6a2a2a;
+            color: #e06060;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: 0.2s;
+            font-weight: bold;
+        }
+        .field-group h3 .remove-btn:hover {
+            background: #6a2a2a;
+            border-color: #8a3a3a;
+            transform: scale(1.1);
+        }
+        label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #8ba9d4;
+            margin-top: 0.9rem;
+            margin-bottom: 0.2rem;
+        }
+        label:first-of-type {
+            margin-top: 0;
+        }
+        input, select {
+            width: 100%;
+            padding: 0.65rem 0.9rem;
+            border: 1px solid #1a4060;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            background: #0a1f33;
+            color: #e2e8f0;
+            transition: 0.15s;
+            font-family: inherit;
+        }
+        input:focus, select:focus {
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            background: #0d2a44;
+        }
+        input::placeholder {
+            color: #4a6a8a;
+        }
+        .inline-hint {
+            font-size: 0.7rem;
+            color: #5a7a9a;
+            margin-top: 0.2rem;
+        }
+        .api-section {
+            background: #0a1f33;
+            border-radius: 18px;
+            padding: 1.25rem 1.5rem;
+            margin-top: 1rem;
+            border: 1px solid #1a4060;
+        }
+        .api-section h3 {
+            margin-top: 0;
+            border-bottom: 1px solid #1a4060;
+            padding-bottom: 0.4rem;
+            margin-bottom: 1rem;
+            color: #b0ccf0;
+        }
+        .btn {
+            background: #1e3a5a;
+            border: none;
+            color: #e2e8f0;
+            font-weight: 600;
+            padding: 0.9rem 1.8rem;
+            border-radius: 40px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 1px solid #2a5a8a;
+            margin-top: 1.2rem;
+            width: auto;
+        }
+        .btn-primary {
+            background: #2563eb;
+            border-color: #2563eb;
+            box-shadow: 0 4px 8px -2px #2563eb40;
+        }
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: scale(1.01);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #2a5a8a;
+            color: #b0ccf0;
+        }
+        .btn-outline:hover {
+            background: #0d2a44;
+            border-color: #3b82f6;
+        }
+        .btn-upload {
+            background: #0d2a44;
+            border: 1px solid #2a5a8a;
+            color: #b0ccf0;
+        }
+        .btn-upload:hover {
+            background: #1a4060;
+        }
+        .btn-add {
+            background: #0a3a2a;
+            border: 1px solid #2a6a4a;
+            color: #6aca8a;
+        }
+        .btn-add:hover {
+            background: #1a4a3a;
+            border-color: #3a8a5a;
+        }
+        .btn-danger {
+            background: #4a1a1a;
+            border: 1px solid #6a2a2a;
+            color: #e06060;
+        }
+        .btn-danger:hover {
+            background: #6a2a2a;
+            border-color: #8a3a3a;
+        }
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+            margin: 1.8rem 0 0.5rem;
+        }
+        .json-output {
+            background: #061220;
+            color: #c8d8e8;
+            padding: 1.5rem;
+            border-radius: 18px;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.8rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-height: 380px;
+            overflow: auto;
+            border: 1px solid #1a4060;
+            margin-top: 0.5rem;
+            position: relative;
+        }
+        .json-output::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .json-output::-webkit-scrollbar-thumb {
+            background: #1a4060;
+            border-radius: 20px;
+        }
+        .json-output::-webkit-scrollbar-track {
+            background: #061220;
+        }
+        .file-upload-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .file-upload-wrapper input[type="file"] {
+            display: none;
+        }
+        .file-label {
+            background: #0d2a44;
+            border: 1px solid #2a5a8a;
+            color: #b0ccf0;
+            padding: 0.65rem 1.5rem;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .file-label:hover {
+            background: #1a4060;
+            border-color: #3b82f6;
+        }
+        #fileName {
+            color: #8ba9d4;
+            font-size: 0.85rem;
+        }
+        .ciefp-header {
+            text-align: center;
+            color: #3b82f6;
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            padding: 0.5rem 0;
+            margin: 0.5rem 0 0.2rem 0;
+            border-top: 1px solid #1a4060;
+            border-bottom: 1px solid #1a4060;
+            background: #0a1f33;
+            border-radius: 8px;
+            text-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+        }
+        .playlist-counter {
+            color: #8ba9d4;
+            font-size: 0.85rem;
+            margin-left: 0.5rem;
+        }
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        @media (max-width: 700px) {
+            .playlists-container {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            .container {
+                padding: 1.25rem;
+            }
+            .api-section div[style] {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📺 IPTV JSON Builder XtreamNew   ..:: CiefpSettings ::..</h1>
+    <div class="subhead">Stalker / Xtream · TMDb · OMDb · SubSource</div>
+
+    <form id="configForm">
+        <!-- Playlists container -->
+        <div id="playlistsContainer" class="playlists-container">
+            <!-- Playlists will be dynamically added here -->
+        </div>
+
+        <!-- Add playlist button -->
+        <div class="full-width" style="margin-top: 0.5rem;">
+            <div class="btn-group">
+                <button type="button" class="btn btn-add" id="addPlaylistBtn">➕ Add Playlist</button>
+                <button type="button" class="btn btn-danger" id="clearAllBtn">🗑️ Clear All Playlists</button>
+            </div>
+            <span class="playlist-counter" id="playlistCounter">Total: 0 playlists</span>
+        </div>
+
+        <!-- API Keys (TMDb, OMDb, SubSource) -->
+        <div class="full-width api-section">
+            <h3>🔑 API Keys (bottom section)</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.2rem;">
+                <div>
+                    <label style="margin-top:0;">TMDb API</label>
+                    <input type="text" id="tmdb_api" value="" placeholder="tmdb api key">
+                    <div class="inline-hint">www.themoviedb.org</div>
+                </div>
+                <div>
+                    <label style="margin-top:0;">OMDb API</label>
+                    <input type="text" id="omdb_api" value="" placeholder="omdb api key">
+                    <div class="inline-hint">www.omdbapi.com</div>
+                </div>
+                <div>
+                    <label style="margin-top:0;">SubSource API</label>
+                    <input type="text" id="subsource_api" value="" placeholder="subsource api key">
+                    <div class="inline-hint">subsource.net</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Load JSON file -->
+        <div class="full-width" style="margin-top: 0.5rem;">
+            <div class="file-upload-wrapper">
+                <label class="file-label" for="jsonFileInput">📂 Load JSON</label>
+                <input type="file" id="jsonFileInput" accept=".json">
+                <span id="fileName">No file selected</span>
+                <button type="button" class="btn btn-upload" id="loadJsonBtn" style="margin-top:0; padding:0.5rem 1.5rem;">🔄 Load</button>
+                <span id="uploadStatus" style="color:#8ba9d4; font-size:0.85rem;"></span>
+            </div>
+        </div>
+
+        <!-- Additional settings (collapsed) -->
+        <div class="full-width" style="margin-top: 0.5rem;">
+            <details style="background: #0a1f33; border-radius: 16px; padding: 0.5rem 1.2rem 0.8rem; border: 1px solid #1a4060;">
+                <summary style="font-weight: 500; cursor: pointer; color: #b0ccf0;">⚙️ Additional Options (preserved values)</summary>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 1.5rem; margin-top: 1rem;">
+                    <div><label>Player type</label><input type="text" id="player_type" value="4097"></div>
+                    <div><label>Live player type</label><input type="text" id="live_player_type" value="4097"></div>
+                    <div><label>VOD player type</label><input type="text" id="vod_player_type" value="4097"></div>
+                    <div><label>Cache path</label><input type="text" id="cache_path" value="/media/hdd/XtreamNew/cache"></div>
+                    <div><label>EPG download path</label><input type="text" id="epg_download_path" value="/media/hdd/XtreamNew/epg"></div>
+                    <div><label>Download path</label><input type="text" id="download_path" value="/media/hdd/XtreamNew/downloads"></div>
+                    <div><label>Backup path</label><input type="text" id="backup_path" value="/media/hdd/XtreamNew/backup"></div>
+                    <div><label>EPG auto time</label><input type="text" id="epg_auto_time" value="06:00"></div>
+                    <div><label>EPG interval (h)</label><input type="text" id="epg_interval" value="12"></div>
+                    <div><label>UI color theme</label><input type="text" id="ui_theme" value="Blue"></div>
+                    <div><label>Plot word limit</label><input type="text" id="plot_limit" value="20"></div>
+                    <div><label>Live EPG source</label><input type="text" id="live_epg_source" value="hybrid"></div>
+                </div>
+            </details>
+        </div>
+
+        <!-- Actions -->
+        <div class="full-width actions">
+            <button type="button" class="btn btn-primary" id="generateBtn">⬇️ Generate JSON</button>
+            <button type="button" class="btn btn-outline" id="copyBtn">📋 Copy</button>
+            <button type="button" class="btn btn-outline" id="downloadBtn">💾 Download .json</button>
+            <span id="statusMsg" style="margin-left: auto; font-size:0.9rem; color:#6a9a6a;"></span>
+        </div>
+    </form>
+
+    <!-- JSON display -->
+    <div class="full-width" style="margin-top: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+            <span style="font-weight: 500; color: #b0ccf0;">📄 JSON output</span>
+            <span id="lineCount" style="font-size:0.75rem; color:#5a7a9a;">~</span>
+        </div>
+        <div class="ciefp-header">..:: CiefpSettings ::..</div>
+        <div class="json-output" id="jsonDisplay">{
+  // JSON will appear here after clicking "Generate JSON"
+}</div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const playlistsContainer = document.getElementById('playlistsContainer');
+        const playlistCounter = document.getElementById('playlistCounter');
+        const jsonDisplay = document.getElementById('jsonDisplay');
+        const statusMsg = document.getElementById('statusMsg');
+        const lineCount = document.getElementById('lineCount');
+        const fileInput = document.getElementById('jsonFileInput');
+        const fileName = document.getElementById('fileName');
+        const uploadStatus = document.getElementById('uploadStatus');
+        let playlistData = []; // Store playlist data in memory
+
+        // Helper: get value or fallback
+        function getVal(id, fallback = '') {
+            const el = document.getElementById(id);
+            return el ? el.value : fallback;
+        }
+
+        // Helper: set value
+        function setVal(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.value = value;
+        }
+
+        // Get all playlist data from memory
+        function getAllPlaylists() {
+            return playlistData;
+        }
+
+        // Build complete JSON
+        function buildConfig() {
+            const playlists = getAllPlaylists();
+            
+            // API keys
+            const tmdbKey = getVal('tmdb_api', '');
+            const omdbKey = getVal('omdb_api', '');
+            const subsourceKey = getVal('subsource_api', '');
+
+            // settings object
+            const settings = {
+                player_type: parseInt(getVal('player_type', '4097')) || 4097,
+                live_player_type: parseInt(getVal('live_player_type', '4097')) || 4097,
+                vod_player_type: parseInt(getVal('vod_player_type', '4097')) || 4097,
+                enable_picons: true,
+                enable_background_preload: true,
+                epg_auto_update: true,
+                epg_auto_time: getVal('epg_auto_time', '06:00'),
+                epg_auto_interval_hours: parseInt(getVal('epg_interval', '12')) || 12,
+                cache_path: getVal('cache_path', '/media/hdd/XtreamNew/cache'),
+                tmdb_api: tmdbKey,
+                vod_layout_style: 'home_grid',
+                series_layout_style: 'home_grid',
+                live_layout_style: 'sidebar',
+                main_menu_style: 'grid',
+                ui_color_theme: getVal('ui_theme', 'Blue'),
+                plot_word_limit: parseInt(getVal('plot_limit', '20')) || 20,
+                epg_download_path: getVal('epg_download_path', '/media/hdd/XtreamNew/epg'),
+                live_epg_source: getVal('live_epg_source', 'hybrid'),
+                xtream_epggrabber_path: '/etc/epgimport/xtream_epggrabber',
+                ipaudio_playlist_path: '/media/hdd/ipaudio/playlist.json',
+                iptv_export_enabled: true,
+                iptv_export_format: 'liteaudio',
+                iptv_export_file: '/media/hdd/ipaudio/playlist.json',
+                iptv_export_folder: '/media/hdd/ipaudio',
+                download_path: getVal('download_path', '/media/hdd/XtreamNew/downloads'),
+                backup_path: getVal('backup_path', '/media/hdd/XtreamNew/backup'),
+                show_adult_channels: false,
+                tmdb_language: 'en',
+                omdb_api: omdbKey,
+                subsource_api_key: subsourceKey
+            };
+
+            // Complete object
+            const fullConfig = {
+                playlists: playlists,
+                last_playlist: 0,
+                favorites: {
+                    live: [],
+                    vod: [],
+                    series: []
+                },
+                resume: {},
+                ui: {
+                    last_section: "live"
+                },
+                settings: settings
+            };
+
+            return fullConfig;
+        }
+
+        // Display JSON
+        function renderJSON() {
+            try {
+                const config = buildConfig();
+                const pretty = JSON.stringify(config, null, 4);
+                jsonDisplay.textContent = pretty;
+                const lines = pretty.split('\n').length;
+                lineCount.textContent = `📏 ${lines} lines`;
+                return pretty;
+            } catch (e) {
+                jsonDisplay.textContent = '⚠️ Error generating JSON: ' + e.message;
+                lineCount.textContent = '❌';
+                return null;
+            }
+        }
+
+        // Generate and display
+        function generateAndShow() {
+            const jsonStr = renderJSON();
+            if (jsonStr) {
+                statusMsg.textContent = '✅ JSON updated';
+                setTimeout(() => { statusMsg.textContent = ''; }, 3000);
+            } else {
+                statusMsg.textContent = '❌ Error';
+            }
+        }
+
+        // Sync DOM with playlistData
+        function syncDOM() {
+            // Clear container
+            playlistsContainer.innerHTML = '';
+            
+            if (playlistData.length === 0) {
+                // Show empty state message
+                const emptyMsg = document.createElement('div');
+                emptyMsg.className = 'full-width';
+                emptyMsg.style.cssText = 'text-align: center; color: #5a7a9a; padding: 2rem; grid-column: 1 / -1;';
+                emptyMsg.textContent = '📭 No playlists added. Click "Add Playlist" to create one.';
+                playlistsContainer.appendChild(emptyMsg);
+                updateCounter();
+                return;
+            }
+            
+            // Recreate all playlist elements from data
+            playlistData.forEach((data, index) => {
+                const div = document.createElement('div');
+                div.className = 'field-group';
+                div.dataset.playlistId = index;
+                
+                const portalType = data.portal_type || 'stalker';
+                
+                div.innerHTML = `
+                    <h3>
+                        <span>📡 Playlist #${index + 1} <span class="badge">${portalType}</span></span>
+                        <span class="remove-btn" onclick="removePlaylist(${index})" title="Remove playlist">×</span>
+                    </h3>
+                    <label>Name</label>
+                    <input type="text" id="p_name_${index}" value="${data.name || ''}" placeholder="e.g. My TV" onchange="updatePlaylistData(${index}, 'name', this.value)">
+
+                    <label>Host</label>
+                    <input type="text" id="p_host_${index}" value="${data.host || ''}" placeholder="http://..." onchange="updatePlaylistData(${index}, 'host', this.value)">
+
+                    <label>Portal Type</label>
+                    <select id="portal_type_${index}" onchange="updatePlaylistData(${index}, 'portal_type', this.value); toggleMacField(${index});">
+                        <option value="stalker" ${portalType === 'stalker' ? 'selected' : ''}>Stalker</option>
+                        <option value="xtream" ${portalType === 'xtream' ? 'selected' : ''}>Xtream</option>
+                    </select>
+
+                    <div id="mac_field_${index}" style="${portalType === 'stalker' ? '' : 'display: none;'}">
+                        <label>MAC Address</label>
+                        <input type="text" id="p_mac_${index}" value="${data.mac || ''}" placeholder="00:1A:79:xx:xx:xx" onchange="updatePlaylistData(${index}, 'mac', this.value)">
+                    </div>
+
+                    <label>Username</label>
+                    <input type="text" id="p_user_${index}" value="${data.username || ''}" placeholder="username" onchange="updatePlaylistData(${index}, 'username', this.value)">
+
+                    <label>Password</label>
+                    <input type="text" id="p_pass_${index}" value="${data.password || ''}" placeholder="••••••••" onchange="updatePlaylistData(${index}, 'password', this.value)">
+
+                    <input type="hidden" id="p_output_${index}" value="ts">
+                `;
+                
+                playlistsContainer.appendChild(div);
+            });
+            
+            updateCounter();
+        }
+
+        // Update playlist data in memory
+        window.updatePlaylistData = function(index, field, value) {
+            if (playlistData[index]) {
+                playlistData[index][field] = value;
+                // Auto-generate JSON after update
+                generateAndShow();
+            }
+        };
+
+        // Toggle MAC field visibility
+        window.toggleMacField = function(id) {
+            const select = document.getElementById(`portal_type_${id}`);
+            const macField = document.getElementById(`mac_field_${id}`);
+            if (select && macField) {
+                macField.style.display = select.value === 'stalker' ? '' : 'none';
+                // Update badge
+                const header = select.closest('.field-group').querySelector('h3 .badge');
+                if (header) header.textContent = select.value;
+                // Update data
+                updatePlaylistData(id, 'portal_type', select.value);
+                if (select.value !== 'stalker') {
+                    updatePlaylistData(id, 'mac', '');
+                    const macInput = document.getElementById(`p_mac_${id}`);
+                    if (macInput) macInput.value = '';
+                }
+            }
+        };
+
+        // Remove single playlist
+        window.removePlaylist = function(index) {
+            if (playlistData.length === 0) return;
+            
+            // Show confirmation dialog
+            if (!confirm(`Are you sure you want to remove Playlist #${index + 1}?`)) {
+                return;
+            }
+            
+            playlistData.splice(index, 1);
+            syncDOM();
+            generateAndShow();
+            statusMsg.textContent = `✅ Playlist #${index + 1} removed`;
+            statusMsg.style.color = '#6a9a6a';
+            setTimeout(() => { statusMsg.textContent = ''; }, 2000);
+        };
+
+        // Clear all playlists
+        function clearAllPlaylists() {
+            if (playlistData.length === 0) {
+                statusMsg.textContent = '⚠️ No playlists to clear';
+                statusMsg.style.color = '#e8a060';
+                setTimeout(() => { statusMsg.textContent = ''; }, 2000);
+                return;
+            }
+            
+            // Show confirmation dialog
+            if (!confirm(`Are you sure you want to remove ALL ${playlistData.length} playlists?`)) {
+                return;
+            }
+            
+            playlistData = [];
+            syncDOM();
+            generateAndShow();
+            statusMsg.textContent = '🗑️ All playlists cleared';
+            statusMsg.style.color = '#e8a060';
+            setTimeout(() => { statusMsg.textContent = ''; }, 2000);
+        }
+
+        // Update playlist counter
+        function updateCounter() {
+            const count = playlistData.length;
+            playlistCounter.textContent = `Total: ${count} playlists`;
+        }
+
+        // Add new playlist
+        function addPlaylist() {
+            // Get default data from last playlist or use defaults
+            let defaultData = { 
+                name: '', 
+                host: '', 
+                username: '', 
+                password: '', 
+                mac: '', 
+                portal_type: 'xtream' 
+            };
+            
+            if (playlistData.length > 0) {
+                const last = playlistData[playlistData.length - 1];
+                defaultData = {
+                    name: '',
+                    host: last.host || '',
+                    username: '',
+                    password: '',
+                    mac: '',
+                    portal_type: last.portal_type || 'xtream'
+                };
+            }
+            
+            playlistData.push(defaultData);
+            syncDOM();
+            generateAndShow();
+            statusMsg.textContent = `✅ Playlist #${playlistData.length} added`;
+            statusMsg.style.color = '#6a9a6a';
+            setTimeout(() => { statusMsg.textContent = ''; }, 2000);
+        }
+
+        // Load JSON file and populate all fields
+        function loadJSONFile() {
+            const file = fileInput.files[0];
+            if (!file) {
+                uploadStatus.textContent = '⚠️ Please select a file first';
+                uploadStatus.style.color = '#e8a060';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const jsonData = JSON.parse(e.target.result);
+                    
+                    // Load playlists
+                    if (jsonData.playlists && Array.isArray(jsonData.playlists)) {
+                        playlistData = jsonData.playlists.map(playlist => ({
+                            name: playlist.name || '',
+                            host: playlist.host || '',
+                            username: playlist.username || '',
+                            password: playlist.password || '',
+                            mac: playlist.mac || '',
+                            portal_type: playlist.portal_type || 'stalker'
+                        }));
+                    } else {
+                        // Default playlists if none found
+                        playlistData = [
+                            { name: 'My Stalker', host: 'http://stalker.example.com', username: 'user1', password: 'pass123', mac: '00:1A:79:00:00:01', portal_type: 'stalker' },
+                            { name: 'My Xtream', host: 'https://xtream.example.com', username: 'xtream_user', password: 'xtream_pass', mac: '', portal_type: 'xtream' }
+                        ];
+                    }
+
+                    // Populate additional settings
+                    if (jsonData.settings) {
+                        const settings = jsonData.settings;
+                        setVal('player_type', settings.player_type || '4097');
+                        setVal('live_player_type', settings.live_player_type || '4097');
+                        setVal('vod_player_type', settings.vod_player_type || '4097');
+                        setVal('cache_path', settings.cache_path || '/media/hdd/XtreamNew/cache');
+                        setVal('epg_download_path', settings.epg_download_path || '/media/hdd/XtreamNew/epg');
+                        setVal('download_path', settings.download_path || '/media/hdd/XtreamNew/downloads');
+                        setVal('backup_path', settings.backup_path || '/media/hdd/XtreamNew/backup');
+                        setVal('epg_auto_time', settings.epg_auto_time || '06:00');
+                        setVal('epg_interval', settings.epg_auto_interval_hours || '12');
+                        setVal('ui_theme', settings.ui_color_theme || 'Blue');
+                        setVal('plot_limit', settings.plot_word_limit || '20');
+                        setVal('live_epg_source', settings.live_epg_source || 'hybrid');
+                        
+                        // Load API keys
+                        setVal('tmdb_api', settings.tmdb_api || '');
+                        setVal('omdb_api', settings.omdb_api || '');
+                        setVal('subsource_api', settings.subsource_api_key || '');
+                    }
+
+                    // Sync DOM with new data
+                    syncDOM();
+                    uploadStatus.textContent = `✅ Loaded ${playlistData.length} playlists successfully!`;
+                    uploadStatus.style.color = '#6a9a6a';
+                    fileName.textContent = file.name;
+                    
+                    // Auto-generate JSON
+                    generateAndShow();
+                    
+                } catch (error) {
+                    uploadStatus.textContent = '❌ Error parsing JSON: ' + error.message;
+                    uploadStatus.style.color = '#e06060';
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Copy to clipboard
+        function copyJSON() {
+            const text = jsonDisplay.textContent;
+            if (!text || text.startsWith('{')) {
+                navigator.clipboard.writeText(text).then(() => {
+                    statusMsg.textContent = '📋 Copied!';
+                    setTimeout(() => { statusMsg.textContent = ''; }, 2500);
+                }).catch(() => {
+                    const range = document.createRange();
+                    range.selectNode(jsonDisplay);
+                    window.getSelection().removeAllRanges();
+                    window.getSelection().addRange(range);
+                    document.execCommand('copy');
+                    statusMsg.textContent = '📋 Copied (fallback)';
+                    setTimeout(() => { statusMsg.textContent = ''; }, 2500);
+                });
+            } else {
+                statusMsg.textContent = '⚠️ No JSON to copy';
+            }
+        }
+
+        // Download as .json file
+        function downloadJSON() {
+            const text = jsonDisplay.textContent;
+            if (!text || text.startsWith('{')) {
+                const blob = new Blob([text], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'settings.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                statusMsg.textContent = '💾 Downloaded settings.json';
+                setTimeout(() => { statusMsg.textContent = ''; }, 3000);
+            } else {
+                statusMsg.textContent = '⚠️ No valid JSON';
+            }
+        }
+
+        // Initialize default playlists
+        function initializePlaylists() {
+            playlistData = [
+                { name: 'My Stalker', host: 'http://stalker.example.com', username: 'user1', password: 'pass123', mac: '00:1A:79:00:00:01', portal_type: 'stalker' },
+                { name: 'My Xtream', host: 'https://xtream.example.com', username: 'xtream_user', password: 'xtream_pass', mac: '', portal_type: 'xtream' }
+            ];
+            syncDOM();
+        }
+
+        // Event listeners
+        document.getElementById('addPlaylistBtn').addEventListener('click', addPlaylist);
+        document.getElementById('clearAllBtn').addEventListener('click', clearAllPlaylists);
+        document.getElementById('generateBtn').addEventListener('click', generateAndShow);
+        document.getElementById('copyBtn').addEventListener('click', copyJSON);
+        document.getElementById('downloadBtn').addEventListener('click', downloadJSON);
+        document.getElementById('loadJsonBtn').addEventListener('click', loadJSONFile);
+        
+        // Display filename when selected
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                fileName.textContent = this.files[0].name;
+                uploadStatus.textContent = '📂 File selected, click "Load"';
+                uploadStatus.style.color = '#8ba9d4';
+            } else {
+                fileName.textContent = 'No file selected';
+            }
+        });
+
+        // Initialize
+        initializePlaylists();
+        generateAndShow();
+
+        // Trigger on Enter key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
+                e.preventDefault();
+                generateAndShow();
+            }
+        });
+
+    })();
+</script>
+
+</body>
+</html>
