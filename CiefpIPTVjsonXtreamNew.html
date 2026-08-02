@@ -311,6 +311,12 @@
         .settings-grid-full {
             grid-column: 1 / -1;
         }
+        .settings-grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.5rem 1.5rem;
+            margin-top: 1rem;
+        }
         @media (max-width: 700px) {
             .playlists-container {
                 grid-template-columns: 1fr;
@@ -325,13 +331,16 @@
             .settings-grid {
                 grid-template-columns: 1fr;
             }
+            .settings-grid-3 {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
 <div class="container">
     <h1>📺 IPTV JSON Builder XtreamNew   ..:: CiefpSettings ::..</h1>
-    <div class="subhead">Stalker / Xtream · TMDb · OMDb · SubSource · Groq</div>
+    <div class="subhead">Stalker / Xtream · TMDb · OMDb · SubSource · Groq · SubDL</div>
 
     <form id="configForm">
         <!-- Playlists container -->
@@ -348,10 +357,10 @@
             <span class="playlist-counter" id="playlistCounter">Total: 0 playlists</span>
         </div>
 
-        <!-- API Keys (TMDb, OMDb, SubSource, Groq) -->
+        <!-- API Keys (TMDb, OMDb, SubSource, Groq, SubDL) -->
         <div class="full-width api-section">
             <h3>🔑 API Keys</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.2rem;">
                 <div>
                     <label style="margin-top:0;">TMDb API</label>
                     <input type="text" id="tmdb_api" value="" placeholder="tmdb api key">
@@ -371,6 +380,21 @@
                     <label style="margin-top:0;">Groq API Key</label>
                     <input type="text" id="groq_api_key" value="" placeholder="groq api key">
                     <div class="inline-hint">console.groq.com</div>
+                </div>
+                <div>
+                    <label style="margin-top:0;">SubDL API Key</label>
+                    <input type="text" id="subdl_api_key" value="" placeholder="subdl api key">
+                    <div class="inline-hint">subdl.com</div>
+                </div>
+                <div>
+                    <label style="margin-top:0;">Subtitle Provider</label>
+                    <select id="subtitle_provider">
+                        <option value="subdl">SubDL</option>
+                        <option value="opensubtitles">OpenSubtitles</option>
+                        <option value="subsource">SubSource</option>
+                        <option value="all">All</option>
+                    </select>
+                    <div class="inline-hint">Select subtitle provider</div>
                 </div>
                 <div style="grid-column: 1 / -1;">
                     <label style="margin-top:0;">Groq Model</label>
@@ -403,15 +427,21 @@
                 <summary style="font-weight: 500; cursor: pointer; color: #b0ccf0;">⚙️ Additional Options (preserved values)</summary>
                 <div class="settings-grid">
                     <div><label>Player type</label><input type="text" id="player_type" value="4097"></div>
-                    <div><label>Live player type</label><input type="text" id="live_player_type" value="4097"></div>
-                    <div><label>VOD player type</label><input type="text" id="vod_player_type" value="4097"></div>
+                    <div><label>Live player type</label><input type="text" id="live_player_type" value="5001"></div>
+                    <div><label>VOD player type</label><input type="text" id="vod_player_type" value="5001"></div>
                     <div><label>Cache path</label><input type="text" id="cache_path" value="/media/hdd/XtreamNew/cache"></div>
-                    <div><label>EPG download path</label><input type="text" id="epg_download_path" value="/media/hdd/XtreamNew/epg"></div>
-                    <div><label>Download path</label><input type="text" id="download_path" value="/media/hdd/XtreamNew/downloads"></div>
-                    <div><label>Backup path</label><input type="text" id="backup_path" value="/media/hdd/XtreamNew/backup"></div>
+                    <div><label>EPG download path</label><input type="text" id="epg_download_path" value="/media/usb/XtreamNew"></div>
+                    <div><label>Download path</label><input type="text" id="download_path" value="/media/usb/XtreamNew"></div>
+                    <div><label>Backup path</label><input type="text" id="backup_path" value="/media/usb/XtreamNew"></div>
                     <div><label>Settings data path</label><input type="text" id="settings_data_path" value="/etc/enigma2/xtreamnew"></div>
                     <div><label>EPG auto time</label><input type="text" id="epg_auto_time" value="06:00"></div>
                     <div><label>EPG interval (h)</label><input type="text" id="epg_interval" value="12"></div>
+                    <div><label>EPG auto update</label>
+                        <select id="epg_auto_update">
+                            <option value="true">Enabled</option>
+                            <option value="false">Disabled</option>
+                        </select>
+                    </div>
                     <div><label>UI color theme</label>
                         <select id="ui_theme">
                             <option value="Blue">Blue</option>
@@ -421,7 +451,7 @@
                             <option value="Dark">Dark</option>
                         </select>
                     </div>
-                    <div><label>Plot word limit</label><input type="text" id="plot_limit" value="20"></div>
+                    <div><label>Plot word limit</label><input type="text" id="plot_limit" value="50"></div>
                     <div><label>Live EPG source</label>
                         <select id="live_epg_source">
                             <option value="hybrid">Hybrid</option>
@@ -453,6 +483,27 @@
                             <option value="disabled">Disabled</option>
                             <option value="enabled">Enabled</option>
                             <option value="auto">Auto</option>
+                        </select>
+                    </div>
+                    <div><label>Genre Translation Mode</label>
+                        <select id="genre_translation_mode">
+                            <option value="original">Original</option>
+                            <option value="translated">Translated</option>
+                            <option value="both">Both</option>
+                        </select>
+                    </div>
+                    <div><label>Country Translation Mode</label>
+                        <select id="country_translation_mode">
+                            <option value="original">Original</option>
+                            <option value="translated">Translated</option>
+                            <option value="both">Both</option>
+                        </select>
+                    </div>
+                    <div><label>Runtime Format Mode</label>
+                        <select id="runtime_format_mode">
+                            <option value="original">Original</option>
+                            <option value="minutes">Minutes</option>
+                            <option value="hours">Hours</option>
                         </select>
                     </div>
                     <div><label>IPTV Export Format</label>
@@ -487,6 +538,95 @@
                         <select id="main_menu_style">
                             <option value="grid">Grid</option>
                             <option value="list">List</option>
+                        </select>
+                    </div>
+                    <div><label>Subtitle Language</label>
+                        <select id="subsource_language">
+                            <option value="en">English</option>
+                            <option value="hr">Croatian</option>
+                            <option value="sr">Serbian</option>
+                            <option value="bs">Bosnian</option>
+                            <option value="de">German</option>
+                            <option value="fr">French</option>
+                            <option value="it">Italian</option>
+                            <option value="es">Spanish</option>
+                        </select>
+                    </div>
+                    <div><label>Subtitle Match Mode</label>
+                        <select id="subtitle_match_mode">
+                            <option value="best">Best</option>
+                            <option value="first">First</option>
+                            <option value="exact">Exact</option>
+                        </select>
+                    </div>
+                    <div><label>Subtitle Keyboard</label>
+                        <select id="subtitle_keyboard">
+                            <option value="new">New</option>
+                            <option value="classic">Classic</option>
+                            <option value="advanced">Advanced</option>
+                        </select>
+                    </div>
+                    <div><label>Backdrop Quality</label>
+                        <select id="backdrop_quality">
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                    <div><label>Backdrop Brightness</label>
+                        <select id="backdrop_brightness">
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                    <div><label>Series Theme Source</label>
+                        <select id="series_theme_source">
+                            <option value="local_ytdlp">Local yt-dlp</option>
+                            <option value="youtube">YouTube</option>
+                            <option value="local">Local</option>
+                        </select>
+                    </div>
+                    <div><label>Series Theme Volume</label><input type="text" id="series_theme_volume" value="18"></div>
+                    <div><label>Series Theme Delay (s)</label><input type="text" id="series_theme_delay" value="2"></div>
+                    <div><label>Series Theme Fade In (ms)</label><input type="text" id="series_theme_fade_in_ms" value="480"></div>
+                    <div><label>Series Theme Fade Out (ms)</label><input type="text" id="series_theme_fade_out_ms" value="0"></div>
+                    <div><label>Series Theme Folder</label><input type="text" id="series_theme_folder" value="/media/usb/XtreamNew"></div>
+                    <div><label>Series Theme yt-dlp Path</label><input type="text" id="series_theme_ytdlp_path" value=""></div>
+                    <div><label>Series Theme Enabled</label>
+                        <select id="series_theme_enabled">
+                            <option value="true">Enabled</option>
+                            <option value="false">Disabled</option>
+                        </select>
+                    </div>
+                    <div><label>Series Theme Loop</label>
+                        <select id="series_theme_loop">
+                            <option value="true">Enabled</option>
+                            <option value="false">Disabled</option>
+                        </select>
+                    </div>
+                    <div><label>Cinematic Backdrop</label>
+                        <select id="cinematic_backdrop">
+                            <option value="true">Enabled</option>
+                            <option value="false">Disabled</option>
+                        </select>
+                    </div>
+                    <div><label>Cinematic Animated Backdrop</label>
+                        <select id="cinematic_animated_backdrop">
+                            <option value="true">Enabled</option>
+                            <option value="false">Disabled</option>
+                        </select>
+                    </div>
+                    <div><label>Show in Main Menu</label>
+                        <select id="show_in_main_menu">
+                            <option value="true">Enabled</option>
+                            <option value="false">Disabled</option>
+                        </select>
+                    </div>
+                    <div><label>Developer Mode</label>
+                        <select id="developer_mode">
+                            <option value="true">Enabled</option>
+                            <option value="false">Disabled</option>
                         </select>
                     </div>
                 </div>
@@ -533,10 +673,22 @@
             return el ? el.value : fallback;
         }
 
+        // Helper: get boolean value
+        function getBoolVal(id, fallback = false) {
+            const val = getVal(id, 'false');
+            return val === 'true';
+        }
+
         // Helper: set value
         function setVal(id, value) {
             const el = document.getElementById(id);
             if (el) el.value = value;
+        }
+
+        // Helper: set boolean value
+        function setBoolVal(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.value = value ? 'true' : 'false';
         }
 
         // Get all playlist data from memory
@@ -553,21 +705,29 @@
             const omdbKey = getVal('omdb_api', '');
             const subsourceKey = getVal('subsource_api', '');
             const groqKey = getVal('groq_api_key', '');
+            const subdlKey = getVal('subdl_api_key', '');
             const groqModel = getVal('groq_model', 'llama-3.3-70b-versatile');
 
             // settings object
             const settings = {
                 player_type: parseInt(getVal('player_type', '4097')) || 4097,
-                live_player_type: parseInt(getVal('live_player_type', '4097')) || 4097,
-                vod_player_type: parseInt(getVal('vod_player_type', '4097')) || 4097,
+                live_player_type: parseInt(getVal('live_player_type', '5001')) || 5001,
+                vod_player_type: parseInt(getVal('vod_player_type', '5001')) || 5001,
                 enable_picons: true,
                 enable_background_preload: true,
-                epg_auto_update: true,
+                epg_auto_update: getBoolVal('epg_auto_update', false),
                 epg_auto_time: getVal('epg_auto_time', '06:00'),
                 epg_auto_interval_hours: parseInt(getVal('epg_interval', '12')) || 12,
                 cache_path: getVal('cache_path', '/media/hdd/XtreamNew/cache'),
                 tmdb_api: tmdbKey,
                 tmdb_language: getVal('tmdb_language', 'en'),
+                series_theme_enabled: getBoolVal('series_theme_enabled', false),
+                series_theme_source: getVal('series_theme_source', 'local_ytdlp'),
+                series_theme_volume: parseInt(getVal('series_theme_volume', '18')) || 18,
+                series_theme_delay: parseInt(getVal('series_theme_delay', '2')) || 2,
+                series_theme_loop: getBoolVal('series_theme_loop', false),
+                series_theme_folder: getVal('series_theme_folder', '/media/usb/XtreamNew'),
+                series_theme_ytdlp_path: getVal('series_theme_ytdlp_path', ''),
                 plot_translation_mode: getVal('plot_translation_mode', 'disabled'),
                 actor_translation_mode: getVal('actor_translation_mode', 'disabled'),
                 groq_api_key: groqKey,
@@ -576,9 +736,10 @@
                 series_layout_style: getVal('series_layout_style', 'home_grid'),
                 live_layout_style: getVal('live_layout_style', 'sidebar'),
                 main_menu_style: getVal('main_menu_style', 'grid'),
+                show_in_main_menu: getBoolVal('show_in_main_menu', false),
                 ui_color_theme: getVal('ui_theme', 'Blue'),
-                plot_word_limit: parseInt(getVal('plot_limit', '20')) || 20,
-                epg_download_path: getVal('epg_download_path', '/media/hdd/XtreamNew/epg'),
+                plot_word_limit: parseInt(getVal('plot_limit', '50')) || 50,
+                epg_download_path: getVal('epg_download_path', '/media/usb/XtreamNew'),
                 live_epg_source: getVal('live_epg_source', 'hybrid'),
                 xtream_epggrabber_path: '/etc/epgimport/xtream_epggrabber',
                 ipaudio_playlist_path: '/media/hdd/ipaudio/playlist.json',
@@ -586,12 +747,27 @@
                 iptv_export_format: getVal('iptv_export_format', 'liteaudio'),
                 iptv_export_file: '/media/hdd/ipaudio/playlist.json',
                 iptv_export_folder: '/media/hdd/ipaudio',
-                download_path: getVal('download_path', '/media/hdd/XtreamNew/downloads'),
-                backup_path: getVal('backup_path', '/media/hdd/XtreamNew/backup'),
+                download_path: getVal('download_path', '/media/usb/XtreamNew'),
+                backup_path: getVal('backup_path', '/media/usb/XtreamNew'),
                 settings_data_path: getVal('settings_data_path', '/etc/enigma2/xtreamnew'),
                 show_adult_channels: false,
                 omdb_api: omdbKey,
-                subsource_api_key: subsourceKey
+                subsource_api_key: subsourceKey,
+                subsource_language: getVal('subsource_language', 'en'),
+                subtitle_keyboard: getVal('subtitle_keyboard', 'new'),
+                subtitle_match_mode: getVal('subtitle_match_mode', 'best'),
+                genre_translation_mode: getVal('genre_translation_mode', 'original'),
+                country_translation_mode: getVal('country_translation_mode', 'original'),
+                runtime_format_mode: getVal('runtime_format_mode', 'original'),
+                backdrop_quality: getVal('backdrop_quality', 'high'),
+                backdrop_brightness: getVal('backdrop_brightness', 'medium'),
+                cinematic_animated_backdrop: getBoolVal('cinematic_animated_backdrop', true),
+                developer_mode: getBoolVal('developer_mode', true),
+                subdl_api_key: subdlKey,
+                subtitle_provider: getVal('subtitle_provider', 'subdl'),
+                cinematic_backdrop: getBoolVal('cinematic_backdrop', true),
+                series_theme_fade_in_ms: parseInt(getVal('series_theme_fade_in_ms', '480')) || 480,
+                series_theme_fade_out_ms: parseInt(getVal('series_theme_fade_out_ms', '0')) || 0
             };
 
             // Complete object
@@ -842,32 +1018,56 @@
                     if (jsonData.settings) {
                         const settings = jsonData.settings;
                         setVal('player_type', settings.player_type || '4097');
-                        setVal('live_player_type', settings.live_player_type || '4097');
-                        setVal('vod_player_type', settings.vod_player_type || '4097');
+                        setVal('live_player_type', settings.live_player_type || '5001');
+                        setVal('vod_player_type', settings.vod_player_type || '5001');
                         setVal('cache_path', settings.cache_path || '/media/hdd/XtreamNew/cache');
-                        setVal('epg_download_path', settings.epg_download_path || '/media/hdd/XtreamNew/epg');
-                        setVal('download_path', settings.download_path || '/media/hdd/XtreamNew/downloads');
-                        setVal('backup_path', settings.backup_path || '/media/hdd/XtreamNew/backup');
+                        setVal('epg_download_path', settings.epg_download_path || '/media/usb/XtreamNew');
+                        setVal('download_path', settings.download_path || '/media/usb/XtreamNew');
+                        setVal('backup_path', settings.backup_path || '/media/usb/XtreamNew');
                         setVal('settings_data_path', settings.settings_data_path || '/etc/enigma2/xtreamnew');
                         setVal('epg_auto_time', settings.epg_auto_time || '06:00');
                         setVal('epg_interval', settings.epg_auto_interval_hours || '12');
+                        setBoolVal('epg_auto_update', settings.epg_auto_update || false);
                         setVal('ui_theme', settings.ui_color_theme || 'Blue');
-                        setVal('plot_limit', settings.plot_word_limit || '20');
+                        setVal('plot_limit', settings.plot_word_limit || '50');
                         setVal('live_epg_source', settings.live_epg_source || 'hybrid');
                         setVal('tmdb_language', settings.tmdb_language || 'en');
                         setVal('plot_translation_mode', settings.plot_translation_mode || 'disabled');
                         setVal('actor_translation_mode', settings.actor_translation_mode || 'disabled');
+                        setVal('genre_translation_mode', settings.genre_translation_mode || 'original');
+                        setVal('country_translation_mode', settings.country_translation_mode || 'original');
+                        setVal('runtime_format_mode', settings.runtime_format_mode || 'original');
                         setVal('iptv_export_format', settings.iptv_export_format || 'liteaudio');
                         setVal('vod_layout_style', settings.vod_layout_style || 'home_grid');
                         setVal('series_layout_style', settings.series_layout_style || 'home_grid');
                         setVal('live_layout_style', settings.live_layout_style || 'sidebar');
                         setVal('main_menu_style', settings.main_menu_style || 'grid');
+                        setBoolVal('show_in_main_menu', settings.show_in_main_menu || false);
+                        setVal('subsource_language', settings.subsource_language || 'en');
+                        setVal('subtitle_match_mode', settings.subtitle_match_mode || 'best');
+                        setVal('subtitle_keyboard', settings.subtitle_keyboard || 'new');
+                        setVal('backdrop_quality', settings.backdrop_quality || 'high');
+                        setVal('backdrop_brightness', settings.backdrop_brightness || 'medium');
+                        setBoolVal('cinematic_animated_backdrop', settings.cinematic_animated_backdrop || true);
+                        setBoolVal('developer_mode', settings.developer_mode || true);
+                        setBoolVal('cinematic_backdrop', settings.cinematic_backdrop || true);
+                        setVal('series_theme_source', settings.series_theme_source || 'local_ytdlp');
+                        setVal('series_theme_volume', settings.series_theme_volume || '18');
+                        setVal('series_theme_delay', settings.series_theme_delay || '2');
+                        setVal('series_theme_fade_in_ms', settings.series_theme_fade_in_ms || '480');
+                        setVal('series_theme_fade_out_ms', settings.series_theme_fade_out_ms || '0');
+                        setVal('series_theme_folder', settings.series_theme_folder || '/media/usb/XtreamNew');
+                        setVal('series_theme_ytdlp_path', settings.series_theme_ytdlp_path || '');
+                        setBoolVal('series_theme_enabled', settings.series_theme_enabled || false);
+                        setBoolVal('series_theme_loop', settings.series_theme_loop || false);
+                        setVal('subtitle_provider', settings.subtitle_provider || 'subdl');
                         
                         // Load API keys
                         setVal('tmdb_api', settings.tmdb_api || '');
                         setVal('omdb_api', settings.omdb_api || '');
                         setVal('subsource_api', settings.subsource_api_key || '');
                         setVal('groq_api_key', settings.groq_api_key || '');
+                        setVal('subdl_api_key', settings.subdl_api_key || '');
                         setVal('groq_model', settings.groq_model || 'llama-3.3-70b-versatile');
                     }
 
